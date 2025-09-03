@@ -1,0 +1,4 @@
+# pyproject placeholder
+[project]
+name = 'bridgelite'
+version = '0.0.0'
