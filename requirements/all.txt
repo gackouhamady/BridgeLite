@@ -1,0 +1,5 @@
+-r core.txt
+-r llm.txt
+-r notebooks.txt
+-r dev.txt
+-r packaging.txt
