@@ -1,0 +1,106 @@
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+*.egg
+dist/
+build/
+wheels/
+
+# Virtual environments
+venv/
+.env/
+.venv/
+ENV/
+env.bak/
+*.env
+
+# -------------------------
+# Jupyter & Notebooks
+# -------------------------
+.ipynb_checkpoints/
+*.ipynb_meta.json
+
+# -------------------------
+# Logs & Dumps
+# -------------------------
+*.log
+*.out
+*.err
+*.sqlite3
+*.db
+*.dump
+
+# -------------------------
+# Unit Test / Coverage
+# -------------------------
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+htmlcov/
+.tox/
+.pytest_cache/
+.junit/
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+.vscode/
+.idea/
+*.iml
+
+# -------------------------
+# System Files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Docker
+# -------------------------
+*.pid
+*.seed
+*.pid.lock
+*.tar
+docker-compose.override.yml
+
+# -------------------------
+# Project-specific
+# -------------------------
+# Trained models & artifacts
+*.pkl
+*.joblib
+*.model
+*.bin
+*.h5
+*.pt
+
+# Data files (optional — comment out if you want to commit them)
+data/
+*.csv
+*.json
+*.parquet
+
+# Reports & plots
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.html
+
+# -------------------------
+# Poetry / Pip
+# -------------------------
+.poetry/
+pip-wheel-metadata/
