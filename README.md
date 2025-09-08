@@ -38,107 +38,6 @@
 - [License](#license)
 
 ---
-
-
-## Progress & Burndown
-
-Progress is driven by `progress/roadmap.yaml`.
-
-```bash
-# Show % complete, remaining hours, and ETA (also updates the badge & burndown)
-bridge progress status
-
-# Log time spent (e.g., 90 minutes on TRN1)
-bridge progress log --task TRN1 --minutes 90
-
-# Mark a task as finished
-bridge progress done TRN1
-
-# Re-render badge & burndown without printing the table
-bridge progress render
-```
-
-### C) Environment variables
-```markdown
-## Environment Variables
-
-| Variable | Purpose | Example |
-|---|---|---|
-| `HF_HOME` | Hugging Face cache directory | `D:\huggingface` (Windows) |
-| `MODEL_PATH` | Main model artifact | `app/model_sklearn.pkl` |
-| `GAZETTEER_PATH` | Merchant gazetteer | `data/gazetteer_merchants.csv` |
-| `PROM_PORT` | Prometheus port (if separated) | `9090` |
-
-**Windows (PowerShell)**
-```powershell
-setx HF_HOME "D:\huggingface"
-$env:HF_HOME="D:\huggingface"
-```
-
-
-### D) Commands cheatsheet
-```markdown
-### Commands (cheatsheet)
-
-```bash
-# Synthetic data + train
-python tools/generate_synthetic_data.py --n 6000
-python training/train.py --train data/transactions_mock.csv --out app/model_sklearn.pkl
-
-# Run API
-uvicorn app.api:app --host 0.0.0.0 --port 8000
-
-# Health & metrics
-curl http://127.0.0.1:8000/health
-curl http://127.0.0.1:8000/metrics
-
-# Tests
-pytest -q
-```
-
-
-### E) CI badge fix (replace placeholder)
-```markdown
-<!-- Replace <owner>/<repo> with your real GitHub slug -->
-[![Build CI](https://img.shields.io/github/actions/workflow/status/<owner>/<repo>/ci.yml?label=CI)](.github/workflows/ci.yml)
-
-<!-- Example -->
-[![Build CI](https://img.shields.io/github/actions/workflow/status/hamady-gackou/BridgeLite/ci.yml?label=CI)](.github/workflows/ci.yml)
-```
-
-### Quality Gates (Acceptance)
-
-| Axis | Threshold |
-|---|---|
-| **Budget category** | macro-F1 ≥ **0.82**, coverage ≥ **90%** (for confidence ≥ τ) |
-| **Merchant normalization** | Pairwise F1 ≥ **0.90** (known aliases) |
-| **Latency** | `/predict` p95 ≤ **80 ms** (excluding Docker cold start) |
-| **Fallback** | ≤ **15%** of requests |
-| **Drift** | Alert if PSI > **0.2** on top-n n-grams or category shift > **15%** |
-
-### Requirements files
-
-- `requirements/core.txt` : fastapi, uvicorn, scikit-learn, xgboost, numpy, pandas, prometheus-client, rapidfuzz, pydantic, matplotlib
-- `requirements/dev.txt`  : pytest, ruff, black
-- `requirements/notebooks.txt` : jupyter, ipykernel, matplotlib
-- `requirements/llm.txt`  : transformers, sentence-transformers, torch (cpu)
-- `requirements/all.txt`  : combines the above
-
-### 5 How  to run (recap)
-- Install your package (editable) and deps
-- python -m venv venv
-- Windows: .\venv\Scripts\Activate ; Linux/macOS: source venv/bin/activate
-- pip install --upgrade pip
-- pip install -e .
-
-### Show progress and generate badge + burndown
-- bridge progress status
-
-### Keep working and logging time
-- bridge progress log --task TRN1 --minutes 60
-- bridge progress status
-
-
 ## Project Goals
 
 - Transform raw banking labels into:
@@ -496,3 +395,102 @@ Response
 
 - MIT. See LICENSE : for details.
 
+
+
+## Progress & Burndown
+
+Progress is driven by `progress/roadmap.yaml`.
+
+```bash
+# Show % complete, remaining hours, and ETA (also updates the badge & burndown)
+bridge progress status
+
+# Log time spent (e.g., 90 minutes on TRN1)
+bridge progress log --task TRN1 --minutes 90
+
+# Mark a task as finished
+bridge progress done TRN1
+
+# Re-render badge & burndown without printing the table
+bridge progress render
+```
+
+### C) Environment variables
+```markdown
+## Environment Variables
+
+| Variable | Purpose | Example |
+|---|---|---|
+| `HF_HOME` | Hugging Face cache directory | `D:\huggingface` (Windows) |
+| `MODEL_PATH` | Main model artifact | `app/model_sklearn.pkl` |
+| `GAZETTEER_PATH` | Merchant gazetteer | `data/gazetteer_merchants.csv` |
+| `PROM_PORT` | Prometheus port (if separated) | `9090` |
+
+**Windows (PowerShell)**
+```powershell
+setx HF_HOME "D:\huggingface"
+$env:HF_HOME="D:\huggingface"
+```
+
+
+### D) Commands cheatsheet
+```markdown
+### Commands (cheatsheet)
+
+```bash
+# Synthetic data + train
+python tools/generate_synthetic_data.py --n 6000
+python training/train.py --train data/transactions_mock.csv --out app/model_sklearn.pkl
+
+# Run API
+uvicorn app.api:app --host 0.0.0.0 --port 8000
+
+# Health & metrics
+curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/metrics
+
+# Tests
+pytest -q
+```
+
+
+### E) CI badge fix (replace placeholder)
+```markdown
+<!-- Replace <owner>/<repo> with your real GitHub slug -->
+[![Build CI](https://img.shields.io/github/actions/workflow/status/<owner>/<repo>/ci.yml?label=CI)](.github/workflows/ci.yml)
+
+<!-- Example -->
+[![Build CI](https://img.shields.io/github/actions/workflow/status/hamady-gackou/BridgeLite/ci.yml?label=CI)](.github/workflows/ci.yml)
+```
+
+### Quality Gates (Acceptance)
+
+| Axis | Threshold |
+|---|---|
+| **Budget category** | macro-F1 ≥ **0.82**, coverage ≥ **90%** (for confidence ≥ τ) |
+| **Merchant normalization** | Pairwise F1 ≥ **0.90** (known aliases) |
+| **Latency** | `/predict` p95 ≤ **80 ms** (excluding Docker cold start) |
+| **Fallback** | ≤ **15%** of requests |
+| **Drift** | Alert if PSI > **0.2** on top-n n-grams or category shift > **15%** |
+
+### Requirements files
+
+- `requirements/core.txt` : fastapi, uvicorn, scikit-learn, xgboost, numpy, pandas, prometheus-client, rapidfuzz, pydantic, matplotlib
+- `requirements/dev.txt`  : pytest, ruff, black
+- `requirements/notebooks.txt` : jupyter, ipykernel, matplotlib
+- `requirements/llm.txt`  : transformers, sentence-transformers, torch (cpu)
+- `requirements/all.txt`  : combines the above
+
+### 5 How  to run (recap)
+- Install your package (editable) and deps
+- python -m venv venv
+- Windows: .\venv\Scripts\Activate ; Linux/macOS: source venv/bin/activate
+- pip install --upgrade pip
+- pip install -e .
+
+### Show progress and generate badge + burndown
+- bridge progress status
+
+### Keep working and logging time
+- bridge progress log --task TRN1 --minutes 60
+- bridge progress status
