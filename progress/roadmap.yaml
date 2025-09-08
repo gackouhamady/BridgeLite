@@ -13,13 +13,13 @@ tasks:
   - id: SETUP1
     title: "Scaffold + venv + requirements (core/dev/notebooks/llm)"
     estimate_h: 2
-    actual_h: 0
-    done: false
+    actual_h: 1
+    done: true
 
   - id: SETUP2
     title: "Lint/format + CI (ruff/black + pytest) + CI badge"
     estimate_h: 3
-    actual_h: 0
+    actual_h: 1
     done: false
 
   - id: SETUP3
@@ -32,27 +32,27 @@ tasks:
   - id: DATA1
     title: "Synthetic data generator (tools/generate_synthetic_data.py)"
     estimate_h: 3
-    actual_h: 0
-    done: false
+    actual_h: 1
+    done: true
 
   - id: DATA2
     title: "Category taxonomy + merchant gazetteer"
     estimate_h: 2
-    actual_h: 0
-    done: false
+    actual_h: 1
+    done: true
 
   # === 2. Preprocessing & Rules ===
   - id: PREP1
     title: "preproc.py (Unicode/accents, lowercase, IBAN/RUM regex)"
     estimate_h: 3
-    actual_h: 0
-    done: false
+    actual_h: 1
+    done: true
 
   - id: RULE1
     title: "rules.py (operation_type, MCC→category, patterns LOYER/EDF/…)"
     estimate_h: 3
-    actual_h: 0
-    done: false
+    actual_h: 1
+    done: true
 
   # === 3. Merchant Resolution ===
   - id: GAZ1
