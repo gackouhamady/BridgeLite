@@ -20,8 +20,9 @@ import typer
 import yaml
 from rich.table import Table
 from rich.console import Console
+import matplotlib
+matplotlib.use("Agg")  # use a non-GUI backend so we can save PNG without Tk
 import matplotlib.pyplot as plt
-
 console = Console()
 app = typer.Typer(no_args_is_help=True)
 
