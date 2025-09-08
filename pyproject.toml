@@ -1,4 +1,72 @@
-# pyproject placeholder
+# ----------------------------
+# Build system declaration
+# ----------------------------
+[build-system]
+# Required by modern Python packaging (PEP 517/518).
+# It tells pip what tool to use to build your project.
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ----------------------------
+# Project metadata
+# ----------------------------
 [project]
-name = 'bridgelite'
-version = '0.0.0'
+name = "bridgelite"            # Package/distribution name on PyPI (if published)
+version = "0.1.0"              # Project version
+description = "BridgeLite pipeline: banking transaction categorization, merchant normalization, drift detection, and API"
+readme = "README.md"           # README file displayed on PyPI
+requires-python = ">=3.9"      # Minimum supported Python version
+license = { text = "MIT" }     # License identifier
+authors = [
+  { name = "Your Name", email = "your.email@example.com" }
+]
+
+# ----------------------------
+# Dependencies
+# ----------------------------
+# These will be installed automatically with pip install -e .
+dependencies = [
+  "typer>=0.12.3",          # CLI framework
+  "rich>=13.7.1",           # Pretty console output
+  "matplotlib>=3.8.0",      # Burndown chart plotting
+  "fastapi>=0.111.0",       # API
+  "uvicorn>=0.30.0",        # ASGI server to run FastAPI
+  "scikit-learn>=1.4.0",    # ML models
+  "xgboost>=2.0.0",         # Gradient boosting
+  "pandas>=2.2.0",          # Data handling
+  "numpy>=1.26.0",          # Math arrays
+  "prometheus-client>=0.20.0", # Metrics
+  "rapidfuzz>=3.6.0",       # Fuzzy matching for merchant normalization
+  "pydantic>=2.6.0",        # Data validation (used by FastAPI)
+  "pyyaml>=6.0.1",          # Config file support (YAML)
+]
+
+# ----------------------------
+# Optional dependencies
+# ----------------------------
+# You can install these with: pip install -e .[dev]
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",          # Testing framework
+  "ruff>=0.5.0",            # Linter
+  "black>=24.3.0",          # Code formatter
+]
+notebooks = [
+  "jupyter>=1.0.0",
+  "ipykernel>=6.29.0",
+]
+
+# ----------------------------
+# Entry points
+# ----------------------------
+# This creates the `bridge` command when installed
+[project.scripts]
+bridge = "app.cli:main"
+
+# ----------------------------
+# Setuptools configuration
+# ----------------------------
+[tool.setuptools]
+# Tell setuptools where to find your Python packages
+package-dir = {"" = "."}
+packages = ["app", "training", "tools"]
