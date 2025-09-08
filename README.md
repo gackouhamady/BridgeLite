@@ -8,6 +8,8 @@
 [![Prometheus](https://img.shields.io/badge/Monitoring-Prometheus-E6522C?logo=prometheus&logoColor=white)](#monitoring--metrics)
 [![Evidently](https://img.shields.io/badge/Drift-Evidently-3C3C3C)](#drift-detection)
 [![Tests](https://img.shields.io/badge/Tests-Pytest-0A9EDC?logo=pytest&logoColor=white)](#tests)
+![Progress](https://img.shields.io/badge/progress-0%25-blue)
+
 
 > **BridgeLite — Banking transaction categorization & merchant normalization with drift detection and a real-time API.**  
 > Turn raw banking labels into structured outputs: `normalized_merchant`, `operation_type`, `budget_category`, plus confidence & explanation.  
