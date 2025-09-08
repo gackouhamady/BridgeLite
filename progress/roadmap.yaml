@@ -1,148 +1,108 @@
-# progress/roadmap.yaml
-# High-level plan that powers the % progress, ETA, and burndown chart.
-# - estimate_h: planned effort (hours) per task
-# - actual_h:   hours you actually spent (auto-updated when you log time)
-# - done:       mark true when task is finished (also bumps progress)
-
-project: "BridgeLite"
-deadline: "2025-10-31"   # optional; used to draw the burndown "ideal" line
-
+project: BridgeLite
+deadline: '2025-10-31'
 tasks:
-
-  # === 0. Setup & Quality ===
-  - id: SETUP1
-    title: "Scaffold + venv + requirements (core/dev/notebooks/llm)"
-    estimate_h: 2
-    actual_h: 1
-    done: true
-
-  - id: SETUP2
-    title: "Lint/format + CI (ruff/black + pytest) + CI badge"
-    estimate_h: 3
-    actual_h: 1
-    done: false
-
-  - id: SETUP3
-    title: "Dockerfile (slim) + run"
-    estimate_h: 2
-    actual_h: 0
-    done: false
-
-  # === 1. Data & Tools ===
-  - id: DATA1
-    title: "Synthetic data generator (tools/generate_synthetic_data.py)"
-    estimate_h: 3
-    actual_h: 1
-    done: true
-
-  - id: DATA2
-    title: "Category taxonomy + merchant gazetteer"
-    estimate_h: 2
-    actual_h: 1
-    done: true
-
-  # === 2. Preprocessing & Rules ===
-  - id: PREP1
-    title: "preproc.py (Unicode/accents, lowercase, IBAN/RUM regex)"
-    estimate_h: 3
-    actual_h: 1
-    done: true
-
-  - id: RULE1
-    title: "rules.py (operation_type, MCC→category, patterns LOYER/EDF/…)"
-    estimate_h: 3
-    actual_h: 1
-    done: true
-
-  # === 3. Merchant Resolution ===
-  - id: GAZ1
-    title: "RapidFuzz matching + threshold + alias→merchant_id"
-    estimate_h: 4
-    actual_h: 0
-    done: false
-
-  # === 4. Main Model ===
-  - id: TRN1
-    title: "TF-IDF char (1–5) + XGBoost/RF"
-    estimate_h: 6
-    actual_h: 0
-    done: false
-
-  - id: TRN2
-    title: "Export artifacts (app/model_sklearn.pkl + gazetteer.pkl)"
-    estimate_h: 2
-    actual_h: 0
-    done: false
-
-  # === 5. Evaluation ===
-  - id: EVAL1
-    title: "Offline eval (macro-F1, confusion, top-k, calibration)"
-    estimate_h: 4
-    actual_h: 0
-    done: false
-
-  - id: NB1
-    title: "Notebook 01_eval_offline.ipynb (plots + narrative)"
-    estimate_h: 3
-    actual_h: 0
-    done: false
-
-  # === 6. FastAPI ===
-  - id: API1
-    title: "api.py (/predict, /metrics, /health) + batch + schemas"
-    estimate_h: 5
-    actual_h: 0
-    done: false
-
-  - id: API2
-    title: "service.py (routing rules→gazetteer→model→LLM) + tests"
-    estimate_h: 4
-    actual_h: 0
-    done: false
-
-  # === 7. Monitoring & Drift ===
-  - id: MON1
-    title: "Prometheus metrics (latency, coverage, fallback)"
-    estimate_h: 3
-    actual_h: 0
-    done: false
-
-  - id: DFT1
-    title: "drift.py (PSI/KS on n-grams, OOV) + simple HTML/PNG"
-    estimate_h: 5
-    actual_h: 0
-    done: false
-
-  # === 8. Fallback LLM (optional) ===
-  - id: LLM1
-    title: "llm_fallback.py (strict-JSON stub or small local model)"
-    estimate_h: 5
-    actual_h: 0
-    done: false
-
-  # === 9. Tests ===
-  - id: TEST1
-    title: "Unit tests: preproc/rules/gazetteer/service/API"
-    estimate_h: 5
-    actual_h: 0
-    done: false
-
-  # === 10. Docs & README ===
-  - id: DOC1
-    title: "README: Quickstart, API, cURL, acceptance gates, PII"
-    estimate_h: 3
-    actual_h: 0
-    done: false
-
-  - id: DOC2
-    title: "Screenshots: metrics/drift + sample /predict"
-    estimate_h: 2
-    actual_h: 0
-    done: false
-
-  # === 11. Polish & Demo ===
-  - id: DEMO1
-    title: "Latency p95, edge-cases, final cleanup"
-    estimate_h: 4
-    actual_h: 0
-    done: false
+- id: SETUP1
+  title: Scaffold + venv + requirements (core/dev/notebooks/llm)
+  estimate_h: 2
+  actual_h: 1
+  done: true
+- id: SETUP2
+  title: Lint/format + CI (ruff/black + pytest) + CI badge
+  estimate_h: 3
+  actual_h: 1
+  done: false
+- id: SETUP3
+  title: Dockerfile (slim) + run
+  estimate_h: 2
+  actual_h: 0
+  done: false
+- id: DATA1
+  title: Synthetic data generator (tools/generate_synthetic_data.py)
+  estimate_h: 3
+  actual_h: 1
+  done: true
+- id: DATA2
+  title: Category taxonomy + merchant gazetteer
+  estimate_h: 2
+  actual_h: 1
+  done: true
+- id: PREP1
+  title: preproc.py (Unicode/accents, lowercase, IBAN/RUM regex)
+  estimate_h: 3
+  actual_h: 1
+  done: true
+- id: RULE1
+  title: rules.py (operation_type, MCC→category, patterns LOYER/EDF/…)
+  estimate_h: 3
+  actual_h: 1
+  done: true
+- id: GAZ1
+  title: RapidFuzz matching + threshold + alias→merchant_id
+  estimate_h: 4
+  actual_h: 1
+  done: true
+- id: TRN1
+  title: TF-IDF char (1–5) + XGBoost/RF
+  estimate_h: 6
+  actual_h: 0
+  done: false
+- id: TRN2
+  title: Export artifacts (app/model_sklearn.pkl + gazetteer.pkl)
+  estimate_h: 2
+  actual_h: 0
+  done: false
+- id: EVAL1
+  title: Offline eval (macro-F1, confusion, top-k, calibration)
+  estimate_h: 4
+  actual_h: 0
+  done: false
+- id: NB1
+  title: Notebook 01_eval_offline.ipynb (plots + narrative)
+  estimate_h: 3
+  actual_h: 0
+  done: false
+- id: API1
+  title: api.py (/predict, /metrics, /health) + batch + schemas
+  estimate_h: 5
+  actual_h: 0
+  done: false
+- id: API2
+  title: service.py (routing rules→gazetteer→model→LLM) + tests
+  estimate_h: 4
+  actual_h: 0
+  done: false
+- id: MON1
+  title: Prometheus metrics (latency, coverage, fallback)
+  estimate_h: 3
+  actual_h: 0
+  done: false
+- id: DFT1
+  title: drift.py (PSI/KS on n-grams, OOV) + simple HTML/PNG
+  estimate_h: 5
+  actual_h: 0
+  done: false
+- id: LLM1
+  title: llm_fallback.py (strict-JSON stub or small local model)
+  estimate_h: 5
+  actual_h: 0
+  done: false
+- id: TEST1
+  title: 'Unit tests: preproc/rules/gazetteer/service/API'
+  estimate_h: 5
+  actual_h: 0
+  done: false
+- id: DOC1
+  title: 'README: Quickstart, API, cURL, acceptance gates, PII'
+  estimate_h: 3
+  actual_h: 0
+  done: false
+- id: DOC2
+  title: 'Screenshots: metrics/drift + sample /predict'
+  estimate_h: 2
+  actual_h: 0
+  done: false
+- id: DEMO1
+  title: Latency p95, edge-cases, final cleanup
+  estimate_h: 4
+  actual_h: 0
+  done: false

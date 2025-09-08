@@ -1,3 +1,14 @@
+"""
+app/cli.py (excerpt)
+
+Main Typer application for BridgeLite. This file assembles sub-CLIs
+(e.g., `progress`, `merchants`) under the single `bridge` command.
+
+Make sure to:
+- Define `app = typer.Typer(...)` FIRST.
+- Then import submodules and mount them via `app.add_typer(...)`.
+"""
+
 # app/cli.py
 # Main CLI for BridgeLite.
 # Fix: define `app = typer.Typer(...)` BEFORE calling `app.add_typer(...)`.
@@ -11,6 +22,9 @@ from rich.console import Console
 
 console = Console()
 app = typer.Typer(no_args_is_help=True)  # MUST be defined before add_typer
+
+from app import merchants as merchants_cli
+app.add_typer(merchants_cli.app, name="merchants")
 
 # -----------------------------
 # Example pipeline commands
