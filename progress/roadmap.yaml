@@ -44,8 +44,8 @@ tasks:
 - id: TRN1
   title: TF-IDF char (1–5) + XGBoost/RF
   estimate_h: 6
-  actual_h: 0
-  done: false
+  actual_h: 6
+  done: true
 - id: TRN2
   title: Export artifacts (app/model_sklearn.pkl + gazetteer.pkl)
   estimate_h: 2
@@ -54,8 +54,8 @@ tasks:
 - id: EVAL1
   title: Offline eval (macro-F1, confusion, top-k, calibration)
   estimate_h: 4
-  actual_h: 0
-  done: false
+  actual_h: 4
+  done: true
 - id: NB1
   title: Notebook 01_eval_offline.ipynb (plots + narrative)
   estimate_h: 3
