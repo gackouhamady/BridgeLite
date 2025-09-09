@@ -1,52 +1,36 @@
-"""
-app/api.py (excerpt)
-
-Show how the service-layer function plugs into FastAPI.
-"""
-
+# app/api.py (tiny sketch)
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from .service import BridgeService
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from fastapi.responses import Response
 
-from app.service_merchants import normalize_merchant
+app = FastAPI(title="BridgeLite API")
+svc = BridgeService()
 
-app = FastAPI()
-
-
-class TxIn(BaseModel):
-    tx_id: str
+class Tx(BaseModel):
+    tx_id: Optional[str] = None
+    date: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
     raw_label: str
+    channel: Optional[str] = None
+    mcc: Optional[int] = None
 
+class PredictRequest(BaseModel):
+    transactions: List[Tx]
 
-class TxOut(BaseModel):
-    tx_id: str
-    normalized_merchant: str | None = None
-    explanation: str | None = None
-    router: str | None = None
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
+@app.post("/predict")
+def predict(req: PredictRequest):
+    batch = [t.dict() for t in req.transactions]
+    return svc.classify_batch(batch)
 
-@app.post("/predict", response_model=List[TxOut])
-def predict(transactions: List[TxIn]) -> List[TxOut]:
-    """
-    Predict endpoint (simplified to focus on merchant normalization).
-
-    For each transaction:
-    - Attempts gazetteer normalization with the configured threshold.
-    - If matched, returns display name + explanation.
-    - Otherwise, leaves fields empty (your model/LLM would fill them later).
-    """
-    outs: List[TxOut] = []
-    for tx in transactions:
-        disp, mid, score = normalize_merchant(tx.raw_label, threshold=86)
-        if mid:
-            outs.append(
-                TxOut(
-                    tx_id=tx.tx_id,
-                    normalized_merchant=disp,
-                    explanation=f"gazetteer match '{disp}' (score={score})",
-                    router="rules>gazetteer",
-                )
-            )
-        else:
-            outs.append(TxOut(tx_id=tx.tx_id, router="rules"))
-    return outs
+@app.get("/metrics")
+def metrics():
+    data = generate_latest()
+    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
