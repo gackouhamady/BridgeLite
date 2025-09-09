@@ -69,8 +69,8 @@ tasks:
 - id: API2
   title: service.py (routing rules→gazetteer→model→LLM) + tests
   estimate_h: 4
-  actual_h: 0
-  done: false
+  actual_h: 4
+  done: true
 - id: MON1
   title: Prometheus metrics (latency, coverage, fallback)
   estimate_h: 3
@@ -84,8 +84,8 @@ tasks:
 - id: LLM1
   title: llm_fallback.py (strict-JSON stub or small local model)
   estimate_h: 5
-  actual_h: 0
-  done: false
+  actual_h: 5
+  done: true
 - id: TEST1
   title: 'Unit tests: preproc/rules/gazetteer/service/API'
   estimate_h: 5
