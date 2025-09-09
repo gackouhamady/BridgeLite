@@ -9,13 +9,13 @@ tasks:
 - id: SETUP2
   title: Lint/format + CI (ruff/black + pytest) + CI badge
   estimate_h: 3
-  actual_h: 1
-  done: false
+  actual_h: 2
+  done: true
 - id: SETUP3
   title: Dockerfile (slim) + run
   estimate_h: 2
-  actual_h: 0
-  done: false
+  actual_h: 3
+  done: true
 - id: DATA1
   title: Synthetic data generator (tools/generate_synthetic_data.py)
   estimate_h: 3
@@ -74,13 +74,13 @@ tasks:
 - id: MON1
   title: Prometheus metrics (latency, coverage, fallback)
   estimate_h: 3
-  actual_h: 0
-  done: false
+  actual_h: 3
+  done: true
 - id: DFT1
   title: drift.py (PSI/KS on n-grams, OOV) + simple HTML/PNG
   estimate_h: 5
-  actual_h: 0
-  done: false
+  actual_h: 7
+  done: true
 - id: LLM1
   title: llm_fallback.py (strict-JSON stub or small local model)
   estimate_h: 5

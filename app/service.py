@@ -60,6 +60,10 @@ PREDICT_LAT_MS = Histogram(
 )
 
 
+DRIFT_PSI_TOPK = Gauge("psi_topk", "Population Stability Index on top-K char n-grams")
+DRIFT_OOV_RATE = Gauge("oov_rate", "Out-of-vocabulary rate on prod window")
+DRIFT_ALERTS_TOTAL = Counter("drift_alerts_total", "Total number of drift alerts")
+
 # ------------------------------ Gazetteer ------------------------------------
 
 @dataclass

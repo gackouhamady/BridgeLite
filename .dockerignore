@@ -1,0 +1,28 @@
+# Python & build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.dist/
+.build/
+.cache/
+.mypy_cache/
+.pytest_cache/
+
+# Local envs & tools
+venv/
+.env
+.env.*
+.idea/
+.vscode/
+
+# Data & reports (image builds its own fast demo model)
+data/*
+!data/.gitkeep
+reports/*
+progress/*
+
+# VCS
+.git
+.gitignore

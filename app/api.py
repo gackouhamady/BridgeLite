@@ -5,6 +5,9 @@ from typing import List, Optional
 from .service import BridgeService
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
+# app/api.py
+from pathlib import Path
+import json
 
 app = FastAPI(title="BridgeLite API")
 svc = BridgeService()
@@ -34,3 +37,21 @@ def predict(req: PredictRequest):
 def metrics():
     data = generate_latest()
     return Response(content=data, media_type=CONTENT_TYPE_LATEST)
+
+@app.get("/drift/summary")
+def drift_summary():
+    p = Path("reports/drift/summary.json")
+    if not p.exists():
+        return {"status": "no_report"}
+    s = json.loads(p.read_text(encoding="utf-8"))
+    # Update gauges as a side effect (optional)
+    try:
+        from prometheus_client import Gauge, Counter
+        from .service import DRIFT_PSI_TOPK, DRIFT_OOV_RATE, DRIFT_ALERTS_TOTAL
+        DRIFT_PSI_TOPK.set(s.get("psi_topk", 0.0))
+        DRIFT_OOV_RATE.set(s.get("oov_rate", 0.0))
+        if any(s.get("alerts", {}).values()):
+            DRIFT_ALERTS_TOTAL.inc()
+    except Exception:
+        pass
+    return s
