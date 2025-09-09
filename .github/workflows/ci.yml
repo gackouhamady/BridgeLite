@@ -1,9 +1,23 @@
-# Placeholder CI workflow
 name: CI
-on: [push]
+on:
+  push:
+  pull_request:
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: windows-latest  # or ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo 'CI placeholder'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/core.txt -r requirements/dev.txt
+      - name: Build artifacts (train fast)
+        run: |
+          python tools/generate_synthetic_data.py --n 3000
+          python training/train.py --train data/transactions_mock.csv --out app/model_sklearn.pkl --model rf --val-size 0.2 --seed 7
+      - name: Tests
+        run: pytest -q

@@ -64,8 +64,8 @@ tasks:
 - id: API1
   title: api.py (/predict, /metrics, /health) + batch + schemas
   estimate_h: 5
-  actual_h: 0
-  done: false
+  actual_h: 5
+  done: true
 - id: API2
   title: service.py (routing rules→gazetteer→model→LLM) + tests
   estimate_h: 4
