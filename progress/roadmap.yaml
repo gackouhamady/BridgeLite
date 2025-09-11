@@ -59,8 +59,8 @@ tasks:
 - id: NB1
   title: Notebook 01_eval_offline.ipynb (plots + narrative)
   estimate_h: 3
-  actual_h: 0
-  done: false
+  actual_h: 5
+  done: true
 - id: API1
   title: api.py (/predict, /metrics, /health) + batch + schemas
   estimate_h: 5
@@ -94,8 +94,8 @@ tasks:
 - id: DOC1
   title: 'README: Quickstart, API, cURL, acceptance gates, PII'
   estimate_h: 3
-  actual_h: 0
-  done: false
+  actual_h: 4
+  done: true
 - id: DOC2
   title: 'Screenshots: metrics/drift + sample /predict'
   estimate_h: 2
