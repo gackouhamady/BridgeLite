@@ -8,7 +8,7 @@
 [![Prometheus](https://img.shields.io/badge/Monitoring-Prometheus-E6522C?logo=prometheus&logoColor=white)](#monitoring--metrics)
 [![Evidently](https://img.shields.io/badge/Drift-Evidently-3C3C3C)](#drift-detection)
 [![Tests](https://img.shields.io/badge/Tests-Pytest-0A9EDC?logo=pytest&logoColor=white)](#tests)
-![Progress](https://img.shields.io/badge/progress-92%25-blue)
+![Progress](https://img.shields.io/badge/progress-100%25-blue)
 
 
 > **BridgeLite — Banking transaction categorization & merchant normalization with drift detection and a real-time API.**  
@@ -515,3 +515,10 @@ pytest -q
 ### Drift visuals
 
 <!-- Optional -->
+
+### Demo artifacts
+- Latency: `reports/demo/latency.txt`
+- Edge-cases results: `reports/demo/edge_cases_results.json`
+- /predict (happy): `reports/demo/predict_happy.json`
+- /predict (fallback): `reports/demo/predict_fallback.json`
+- /metrics: `reports/demo/metrics.txt`

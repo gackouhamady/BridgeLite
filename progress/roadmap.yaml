@@ -99,10 +99,10 @@ tasks:
 - id: DOC2
   title: 'Screenshots: metrics/drift + sample /predict'
   estimate_h: 2
-  actual_h: 0
-  done: false
+  actual_h: 2
+  done: true
 - id: DEMO1
   title: Latency p95, edge-cases, final cleanup
   estimate_h: 4
-  actual_h: 0
-  done: false
+  actual_h: 2
+  done: true

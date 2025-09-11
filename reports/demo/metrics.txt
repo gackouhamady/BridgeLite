@@ -1,0 +1,62 @@
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 12767.0
+python_gc_objects_collected_total{generation="1"} 9778.0
+python_gc_objects_collected_total{generation="2"} 2060.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 499.0
+python_gc_collections_total{generation="1"} 45.0
+python_gc_collections_total{generation="2"} 3.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="12",patchlevel="3",version="3.12.3"} 1.0
+# HELP predict_requests_total Total prediction requests
+# TYPE predict_requests_total counter
+predict_requests_total 409.0
+# HELP predict_requests_created Total prediction requests
+# TYPE predict_requests_created gauge
+predict_requests_created 1.7575883481124325e+09
+# HELP fallback_total Total fallback LLM invocations
+# TYPE fallback_total counter
+fallback_total 137.0
+# HELP fallback_created Total fallback LLM invocations
+# TYPE fallback_created gauge
+fallback_created 1.7575883481124325e+09
+# HELP coverage_ratio Share of predictions with confidence >= tau
+# TYPE coverage_ratio gauge
+coverage_ratio 0.0
+# HELP predict_latency_ms Prediction latency in milliseconds
+# TYPE predict_latency_ms histogram
+predict_latency_ms_bucket{le="5.0"} 271.0
+predict_latency_ms_bucket{le="10.0"} 271.0
+predict_latency_ms_bucket{le="20.0"} 272.0
+predict_latency_ms_bucket{le="40.0"} 272.0
+predict_latency_ms_bucket{le="80.0"} 316.0
+predict_latency_ms_bucket{le="160.0"} 404.0
+predict_latency_ms_bucket{le="320.0"} 409.0
+predict_latency_ms_bucket{le="640.0"} 409.0
+predict_latency_ms_bucket{le="1280.0"} 409.0
+predict_latency_ms_bucket{le="+Inf"} 409.0
+predict_latency_ms_count 409.0
+predict_latency_ms_sum 14295.269900034327
+# HELP predict_latency_ms_created Prediction latency in milliseconds
+# TYPE predict_latency_ms_created gauge
+predict_latency_ms_created 1.7575883481144438e+09
+# HELP psi_topk Population Stability Index on top-K char n-grams
+# TYPE psi_topk gauge
+psi_topk 0.0
+# HELP oov_rate Out-of-vocabulary rate on prod window
+# TYPE oov_rate gauge
+oov_rate 0.0
+# HELP drift_alerts_total Total number of drift alerts
+# TYPE drift_alerts_total counter
+drift_alerts_total 0.0
+# HELP drift_alerts_created Total number of drift alerts
+# TYPE drift_alerts_created gauge
+drift_alerts_created 1.7575883481144438e+09
