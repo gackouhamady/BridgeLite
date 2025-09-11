@@ -49,8 +49,8 @@ tasks:
 - id: TRN2
   title: Export artifacts (app/model_sklearn.pkl + gazetteer.pkl)
   estimate_h: 2
-  actual_h: 0
-  done: false
+  actual_h: 3
+  done: true
 - id: EVAL1
   title: Offline eval (macro-F1, confusion, top-k, calibration)
   estimate_h: 4
@@ -89,8 +89,8 @@ tasks:
 - id: TEST1
   title: 'Unit tests: preproc/rules/gazetteer/service/API'
   estimate_h: 5
-  actual_h: 0
-  done: false
+  actual_h: 5
+  done: true
 - id: DOC1
   title: 'README: Quickstart, API, cURL, acceptance gates, PII'
   estimate_h: 3

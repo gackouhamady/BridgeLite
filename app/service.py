@@ -39,13 +39,12 @@ from typing import Dict, List, Optional, Tuple
 import joblib
 import numpy as np
 import pandas as pd
-from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import Counter, Gauge, Histogram
+from rapidfuzz import fuzz, process  # type: ignore
 
-from rapidfuzz import process, fuzz  # type: ignore
-
+from .llm_fallback import classify_with_llm
 from .preproc import preprocess_record
 from .rules import apply_rules
-from .llm_fallback import classify_with_llm
 
 
 # ------------------------------ Metrics --------------------------------------
@@ -59,15 +58,34 @@ PREDICT_LAT_MS = Histogram(
     buckets=(5, 10, 20, 40, 80, 160, 320, 640, 1280),
 )
 
-
+# Drift-related (updated via /drift/summary or /drift/update)
 DRIFT_PSI_TOPK = Gauge("psi_topk", "Population Stability Index on top-K char n-grams")
 DRIFT_OOV_RATE = Gauge("oov_rate", "Out-of-vocabulary rate on prod window")
 DRIFT_ALERTS_TOTAL = Counter("drift_alerts_total", "Total number of drift alerts")
+
+
+def update_drift_metrics(summary: dict) -> None:
+    """
+    Update drift gauges from a summary dict (see training/drift.py output).
+    Safe no-op on errors (metrics must never break serving).
+    """
+    try:
+        if "psi_topk" in summary:
+            DRIFT_PSI_TOPK.set(float(summary["psi_topk"]))
+        if "oov_rate" in summary:
+            DRIFT_OOV_RATE.set(float(summary["oov_rate"]))
+        alerts = summary.get("alerts", {})
+        if isinstance(alerts, dict) and any(alerts.values()):
+            DRIFT_ALERTS_TOTAL.inc()
+    except Exception:
+        pass
+
 
 # ------------------------------ Gazetteer ------------------------------------
 
 @dataclass
 class Gazetteer:
+    """Simple fuzzy gazetteer for alias→merchant mapping."""
     aliases: List[str]
     ids: List[str]
     display: List[str]
@@ -78,21 +96,32 @@ class Gazetteer:
         need = {"alias", "merchant_id", "display_name"}
         if not need.issubset(df.columns):
             raise ValueError(f"Gazetteer must have columns {need}")
-        aliases = df["alias"].astype(str).str.lower().tolist()
+        aliases = df["alias"].astype(str).str.lower().str.strip().tolist()
         ids = df["merchant_id"].astype(str).tolist()
         display = df["display_name"].astype(str).tolist()
         return cls(aliases, ids, display)
 
-    def lookup(self, text: str, score_cut: float = 0.90) -> Tuple[Optional[str], Optional[str], float, str]:
+    @classmethod
+    def from_pkl(cls, path: str) -> "Gazetteer":
+        b = joblib.load(path)
+        return cls(
+            aliases=list(b["aliases_lower"]),
+            ids=list(b["merchant_ids"]),
+            display=list(b["display_names"]),
+        )
+
+    def lookup(
+        self, text: str, score_cut: float = 0.90
+    ) -> Tuple[Optional[str], Optional[str], float, str]:
         """
         Fuzzy lookup; returns (merchant_id, display_name, score, reason).
-        Score is in 0..1 (RapidFuzz returns 0..100).
+        Score is normalized to 0..1 (RapidFuzz native scale is 0..100).
         """
         if not self.aliases:
             return None, None, 0.0, "gazetteer-empty"
 
         item = process.extractOne(
-            query=text.lower(),
+            query=(text or "").lower(),
             choices=self.aliases,
             scorer=fuzz.WRatio,  # robust composite scorer
         )
@@ -106,34 +135,39 @@ class Gazetteer:
         return None, None, score01, f"weak-alias:{alias}|score:{score01:.2f}"
 
 
-# ------------------------------ Service --------------------------------------
+# ------------------------------ Helpers --------------------------------------
 
 def _build_text_for_model(masked_text: str, op_type: str, mcc: Optional[int]) -> str:
+    """Compose the exact text representation used by the vectorizer at training time."""
     mcc_tok = f"mcc:{int(mcc)}" if (mcc is not None and str(mcc).isdigit()) else "mcc:none"
     return f"{masked_text} op:{op_type or 'unknown'} {mcc_tok}"
-
-
-def _pmax(proba: np.ndarray) -> float:
-    return float(np.max(proba)) if proba.size else 0.0
 
 
 def _oov_rate_char_ngrams(text: str, vectorizer) -> float:
     """
     Very simple OOV proxy for char n-grams: share of n-grams not in the vocab.
+    Returns 0.0 on any error to avoid blocking routing.
     """
     try:
         analyzer = vectorizer.build_analyzer()
-        grams = analyzer(text)
+        grams = analyzer(text or "")
         if not grams:
             return 1.0
         vocab = vectorizer.vocabulary_
         seen = sum(1 for g in grams if g in vocab)
         return float(1.0 - (seen / max(1, len(grams))))
     except Exception:
-        return 0.0  # if anything goes wrong, don't block routing
+        return 0.0
 
+
+# ------------------------------ Service --------------------------------------
 
 class BridgeService:
+    """
+    Main runtime router. Prefers:
+      rules → gazetteer → model → LLM
+    """
+
     def __init__(
         self,
         model_path: str = "app/model_sklearn.pkl",
@@ -141,22 +175,41 @@ class BridgeService:
         tau: float = 0.6,
         gaz_threshold: float = 0.90,
         oov_tau: float = 0.55,
-        llm_mode: str = "auto",  # "auto" | "stub" | "hf-zero-shot"
+        llm_mode: str = "stub",  # "stub" | "auto" | "hf-zero-shot"
     ):
         self.tau = float(tau)
         self.gaz_threshold = float(gaz_threshold)
         self.oov_tau = float(oov_tau)
         self.llm_mode = llm_mode
 
-        bundle = joblib.load(model_path)
-        self.vectorizer = bundle["vectorizer"]
-        self.model = bundle["model"]
-        self.le = bundle["label_encoder"]
-        self.labels = list(self.le.classes_)
+        # --- Load model bundle if available ---
+        self.vectorizer = None
+        self.model = None
+        self.le = None
+        self.labels: List[str] = []
 
-        self.gazetteer = None
-        if gazetteer_path and Path(gazetteer_path).exists():
-            self.gazetteer = Gazetteer.from_csv(gazetteer_path)
+        mp = Path(model_path)
+        if mp.exists():
+            bundle = joblib.load(mp)
+            self.vectorizer = bundle.get("vectorizer")
+            self.model = bundle.get("model")
+            self.le = bundle.get("label_encoder")
+            if self.le is not None:
+                self.labels = list(self.le.classes_)
+
+        # --- Load gazetteer (prefer artifact .pkl, else CSV) ---
+        self.gazetteer: Optional[Gazetteer] = None
+        if gazetteer_path:
+            pkl = Path("app/gazetteer.pkl")
+            csv = Path(gazetteer_path)
+            try:
+                if pkl.exists():
+                    self.gazetteer = Gazetteer.from_pkl(str(pkl))
+                elif csv.exists():
+                    self.gazetteer = Gazetteer.from_csv(str(csv))
+            except Exception:
+                # Do not crash if gazetteer is malformed; just skip it
+                self.gazetteer = None
 
     # -------------------------- Routing core --------------------------
 
@@ -166,7 +219,6 @@ class BridgeService:
         Returns the final structured dict expected by /predict.
         """
         t0 = time.perf_counter()
-
         PREDICT_REQUESTS.inc()
 
         # Preprocess
@@ -179,21 +231,17 @@ class BridgeService:
             category = r["category"]
             conf = 0.80  # heuristic default for strong rules
             explanation_parts.append(f"rules:{r['reason']}")
-            # Optionally still do merchant lookup for display
+
+            # Optional: still try merchant normalization
             merch_name = None
-            merch_conf = 0.0
-            merch_reason = ""
             if self.gazetteer:
-                mid, disp, s, why = self.gazetteer.lookup(pre.normalized, self.gaz_threshold)
+                _, disp, s, why = self.gazetteer.lookup(pre.normalized, self.gaz_threshold)
                 if disp and s >= self.gaz_threshold:
                     merch_name = disp
-                    merch_conf = s
-                    merch_reason = why
                     explanation_parts.append(f"gazetteer:{why}")
 
             lat_ms = (time.perf_counter() - t0) * 1000.0
             PREDICT_LAT_MS.observe(lat_ms)
-
             return {
                 "tx_id": tx.get("tx_id"),
                 "operation_type": pre.operation_type,
@@ -208,42 +256,49 @@ class BridgeService:
         # 2) Gazetteer (merchant normalization)
         merch_name = None
         if self.gazetteer:
-            mid, disp, s, why = self.gazetteer.lookup(pre.normalized, self.gaz_threshold)
+            _, disp, s, why = self.gazetteer.lookup(pre.normalized, self.gaz_threshold)
             if disp and s >= self.gaz_threshold:
                 merch_name = disp
                 explanation_parts.append(f"gazetteer:{why}")
 
-        # 3) Model prediction
-        model_text = _build_text_for_model(pre.masked, pre.operation_type, tx.get("mcc"))
-        X = self.vectorizer.transform([model_text])
-        proba = self.model.predict_proba(X)[0]
-        idx = int(np.argmax(proba))
-        p = float(proba[idx])
-        category = self.le.inverse_transform([idx])[0]
-        explanation_parts.append(f"model:pmax={p:.3f}")
+        # 3) Model prediction (if model available)
+        result_category = None
+        result_conf = 0.0
+        route = "model" if merch_name else "model"  # default route name
 
-        oov = _oov_rate_char_ngrams(pre.masked, self.vectorizer)
-        explanation_parts.append(f"oov={oov:.2f}")
+        use_model = False
+        if self.vectorizer is not None and self.model is not None and self.le is not None:
+            model_text = _build_text_for_model(pre.masked, pre.operation_type, tx.get("mcc"))
+            X = self.vectorizer.transform([model_text])
+            proba = self.model.predict_proba(X)[0]
+            idx = int(np.argmax(proba))
+            p = float(proba[idx])
+            category = self.le.inverse_transform([idx])[0]
+            explanation_parts.append(f"model:pmax={p:.3f}")
 
-        use_model = (p >= self.tau) and (oov <= self.oov_tau)
+            oov = _oov_rate_char_ngrams(pre.masked, self.vectorizer)
+            explanation_parts.append(f"oov={oov:.2f}")
 
-        result_category = category
-        result_conf = p
-        route = "model"
-        if merch_name:
-            route = "gazetteer>model"
+            use_model = (p >= self.tau) and (oov <= self.oov_tau)
+            result_category = category
+            result_conf = p
+            if merch_name:
+                route = "gazetteer>model"
+        else:
+            explanation_parts.append("model:unavailable")
+            use_model = False  # force LLM if we have no model
 
         # 4) Fallback LLM if needed
         if not use_model:
             FALLBACK_TOTAL.inc()
-            llm = classify_with_llm(pre.normalized, self.labels, mode=self.llm_mode)
-            result_category = llm["category"]
-            result_conf = float(max(result_conf, llm["confidence"]))  # keep best view for confidence
-            explanation_parts.append(f"llm:{llm['reason']}")
-            route = (route + ">llm") if route else "llm"
+            labels_for_llm = self.labels or []  # may be empty; stub will handle
+            llm = classify_with_llm(pre.normalized, labels_for_llm, mode=self.llm_mode)
+            result_category = llm.get("category", result_category or "Other")
+            # show the best confidence we have (model pmax vs llm confidence)
+            result_conf = float(max(result_conf, float(llm.get("confidence", 0.0))))
+            explanation_parts.append(f"llm:{llm.get('reason', 'fallback')}")
 
-        # Coverage metric (gauge reflects last share on batch in API layer; here we just mark decision)
-        # The API's batch wrapper will compute actual coverage ratio over the request.
+            route = ("gazetteer>llm" if merch_name else "llm") if "model" not in route else (route + ">llm")
 
         lat_ms = (time.perf_counter() - t0) * 1000.0
         PREDICT_LAT_MS.observe(lat_ms)
@@ -264,15 +319,13 @@ class BridgeService:
     def classify_batch(self, txs: List[Dict]) -> Dict:
         """
         Classify a batch and compute simple request-level metrics (coverage, fallback rate).
+        The API layer will set COVERAGE_RATIO gauge based on this.
         """
         results = [self.classify_one(tx) for tx in txs]
         confs = [r["confidence"] for r in results]
         coverage = float(np.mean([c >= self.tau for c in confs])) if confs else 0.0
-        # We estimate fallback rate by checking router string
         fallback_rate = float(np.mean(["llm" in r["router"] for r in results])) if results else 0.0
-
         COVERAGE_RATIO.set(coverage)
-
         return {
             "results": results,
             "metrics": {"coverage": round(coverage, 4), "fallback_rate": round(fallback_rate, 4)},
@@ -289,7 +342,7 @@ if __name__ == "__main__":
         tau=0.6,
         gaz_threshold=0.90,
         oov_tau=0.55,
-        llm_mode="auto",  # try hf if installed; otherwise stub
+        llm_mode="stub",  # use "stub" unless transformers/torch are installed
     )
     batch = {
         "transactions": [
