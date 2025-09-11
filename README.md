@@ -8,7 +8,7 @@
 [![Prometheus](https://img.shields.io/badge/Monitoring-Prometheus-E6522C?logo=prometheus&logoColor=white)](#monitoring--metrics)
 [![Evidently](https://img.shields.io/badge/Drift-Evidently-3C3C3C)](#drift-detection)
 [![Tests](https://img.shields.io/badge/Tests-Pytest-0A9EDC?logo=pytest&logoColor=white)](#tests)
-![Progress](https://img.shields.io/badge/progress-82%25-blue)
+![Progress](https://img.shields.io/badge/progress-92%25-blue)
 
 
 > **BridgeLite — Banking transaction categorization & merchant normalization with drift detection and a real-time API.**  
@@ -494,3 +494,24 @@ pytest -q
 ### Keep working and logging time
 - bridge progress log --task TRN1 --minutes 60
 - bridge progress status
+
+
+## Screenshots & Samples
+
+### Sample `/predict` (happy path)
+```json
+<!-- file: reports/screenshots/predict_happy.json -->
+{!reports/screenshots/predict_happy.json!}
+```
+### Sample /predict (LLM fallback) : 
+
+<!-- file: reports/screenshots/predict_fallback.json -->
+{!reports/screenshots/predict_fallback.json!}
+
+### /metrics (Prometheus text)
+<!-- file: reports/screenshots/metrics.txt -->
+{!reports/screenshots/metrics.txt!}
+
+### Drift visuals
+
+<!-- Optional -->
